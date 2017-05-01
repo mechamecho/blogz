@@ -33,5 +33,17 @@ indexes:
 
 - kind: Post
   properties:
+  - name: query.author
+  - name: created
+    direction: desc
+
+- kind: Post
+  properties:
+  - name: user
+  - name: created
+    direction: desc
+
+- kind: Post
+  properties:
   - name: user=
   - name: created
