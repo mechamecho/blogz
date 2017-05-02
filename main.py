@@ -48,6 +48,21 @@ class BlogHandler(webapp2.RequestHandler):
         cookie_val = hashutils.make_secure_val(val)
         self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (name, cookie_val))
 
+    def link_needed(self, *a, **kw):
+        """to check if user is logged in or not, and give back the needed link"""
+        uid = self.read_secure_cookie('user_id')
+        self.user = uid and User.get_by_id(int(uid))
+
+        if not self.user:
+            l=["log in", "/login"]
+        else:
+            l=["log out", "/logout"]
+
+        return l
+
+
+
+
     def initialize(self, *a, **kw):
         """
             A filter to restrict access to certain pages when not logged in.
