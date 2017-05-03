@@ -9,6 +9,20 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 class BlogHandler(webapp2.RequestHandler):
     """ Utility class for gathering various useful methods that are used by most request handlers """
 
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
+    
+    def render_str(self, template, **params):
+        t=jinja_env.get_template(template)
+        
+        return t.render(params)
+
+    def render(self,template, link_in="", link_out="",**kw):
+        link=self.link_needed()
+        link_in=link[0]
+        link_out=link[1]
+        self.write(self.render_str(template, link_in,link_out, **kw))
+
     def get_posts(self, limit, offset):
         """ Get all posts ordered by creation date (descending) """
         query = Post.all().order('-created')
@@ -50,15 +64,17 @@ class BlogHandler(webapp2.RequestHandler):
 
     def link_needed(self, *a, **kw):
         """to check if user is logged in or not, and give back the needed link"""
+        webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.get_by_id(int(uid))
-
+        log_out_link,log_in_link=""
         if not self.user:
-            l=["log in", "/login"]
+            log_in_link="log in"
         else:
-            l=["log out", "/logout"]
+            log_out_link="log out"
 
-        return l
+        link=[log_in_link, log_out_link]
+        return link
 
 
 
@@ -211,7 +227,7 @@ class SignupHandler(BlogHandler):
 
     def get(self):
         t = jinja_env.get_template("signup.html")
-        response = t.render(errors={})
+        response = t.render_str(errors={})
         self.response.out.write(response)
 
     def post(self):
@@ -267,7 +283,7 @@ class SignupHandler(BlogHandler):
 
         if has_error:
             t = jinja_env.get_template("signup.html")
-            response = t.render(username=username, email=email, errors=errors)
+            response = t.render_str(username=username, email=email, errors=errors)
             self.response.out.write(response)
         else:
             self.redirect('/blog/newpost')

@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<ul>
+    <li><a href"/login">{{log_in_link}}</a></li>
+    <li><a href="/logout">{{log_out_link}}</a></li>
+</ul>
 <h2 class="post-title">{{ post.title }}</h2>
 <p class="post-body">{{ post.body }}</p>
 <!-- TODO add author w/ link to author's blog -->
